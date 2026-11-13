@@ -24,7 +24,7 @@ The private office composition uses the Office Interior Tileset by Donarg:
 
 The license bundled in the purchased archive permits editing and use in commercial and non-commercial projects. It prohibits resale or redistribution, web3/NFT/crypto/blockchain projects, and AI or machine-learning training. Credit to Donarg is optional and appreciated.
 
-The initial private preview uses the bundled Level 3 composition as a temporary office layout and overlays fictional Pixelwood NPCs. The 16×16 atlas is also prepared for the custom photo-based map that will replace the sample layout.
+The private preview builds a custom room from the 16×16 atlas: ten wall-side developer stations, two window/balcony bays, and a central entrance. Fictional Pixelwood NPCs currently populate the stations until original team character sprites are introduced.
 
 ## Local source layout
 
