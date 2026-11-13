@@ -9,6 +9,7 @@ The roadmap is ordered by useful, observable milestones rather than speculative 
 - Deterministic world clock with tests
 - Repository rules, architecture, privacy boundary, CI, and PR workflow
 - GitHub Pages deployment pipeline
+- Private licensed-art office shell with ten developer stations, two balcony/window bays, and an entrance
 
 ## 1. One believable workday
 

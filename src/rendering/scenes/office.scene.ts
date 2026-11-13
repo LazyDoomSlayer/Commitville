@@ -8,6 +8,7 @@ import {
   type PixelwoodPackManifest,
   type PrivateAssetsManifest,
 } from '../../services/assets/private-assets.service';
+import { DonargOfficeRenderer } from './donarg-office.renderer';
 
 const COLORS = {
   wall: 0x22313d,
@@ -115,7 +116,7 @@ export class OfficeScene extends Phaser.Scene {
   create(): void {
     this.cameras.main.setBackgroundColor(COLORS.wall);
 
-    if (this.donargPack && this.textures.exists(DONARG_TEXTURES.officeDesign)) {
+    if (this.donargPack && this.textures.exists(DONARG_TEXTURES.tilesetNoShadow)) {
       this.drawDonargOffice();
     } else if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.deskFront)) {
       this.drawPixelwoodOffice();
@@ -129,56 +130,17 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private drawDonargOffice(): void {
-    const { width, height } = this.scale;
-    const sourceWidth = 512;
-    const sourceHeight = 448;
-    const top = Math.max(82, height * 0.13);
-    const availableWidth = width - 32;
-    const availableHeight = height - top - 24;
-    const officeScale = Math.min(1.5, availableWidth / sourceWidth, availableHeight / sourceHeight);
-    const centerX = width / 2;
-    const left = centerX - (sourceWidth * officeScale) / 2;
+    const npcTextures = this.pixelwoodPack
+      ? NPC_ASSET_NAMES.map((name) => PIXELWOOD_TEXTURES[name]).filter((texture) =>
+          this.textures.exists(texture),
+        )
+      : [];
 
-    this.add
-      .image(centerX, top, DONARG_TEXTURES.officeDesign)
-      .setScale(officeScale)
-      .setOrigin(0.5, 0);
-
-    if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.npcOne)) {
-      const placements: Array<{
-        x: number;
-        y: number;
-        texture: (typeof NPC_ASSET_NAMES)[number];
-      }> = [
-        { x: 112, y: 218, texture: 'npcOne' },
-        { x: 208, y: 218, texture: 'npcTwo' },
-        { x: 112, y: 322, texture: 'npcThree' },
-        { x: 208, y: 322, texture: 'npcFour' },
-      ];
-
-      for (const placement of placements) {
-        this.add
-          .sprite(
-            left + placement.x * officeScale,
-            top + placement.y * officeScale,
-            PIXELWOOD_TEXTURES[placement.texture],
-            0,
-          )
-          .setScale(officeScale)
-          .setOrigin(0.5, 0.72);
-      }
-    }
-
-    this.add
-      .text(centerX, top + 18, 'AUTONOMOUS OFFICE · PRIVATE PREVIEW', {
-        color: '#5e4f4c',
-        backgroundColor: '#f7f2df',
-        fontFamily: 'monospace',
-        fontSize: officeScale >= 0.8 ? '10px' : '7px',
-        letterSpacing: 1,
-        padding: { x: 5, y: 3 },
-      })
-      .setOrigin(0.5, 0);
+    new DonargOfficeRenderer({
+      scene: this,
+      atlasTexture: DONARG_TEXTURES.tilesetNoShadow,
+      npcTextures,
+    }).render();
   }
 
   private drawPixelwoodOffice(): void {
