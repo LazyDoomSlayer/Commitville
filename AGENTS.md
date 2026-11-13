@@ -64,6 +64,8 @@ Avoid generic dumping grounds such as `utils/`, `helpers/`, or `common/`. Name t
 - Design for unattended recovery. A runtime error must not leave the TV on a blank screen.
 - Do not add a UI framework, backend, database, analytics, or network dependency without an ADR.
 - Do not add real team configuration to the public repository. Use ignored local files described in `docs/PRIVACY.md`.
+- Never commit Pixelwood Valley or other licensed art-pack files. Use the private asset preparation workflow in `docs/ASSETS.md`.
+- Pixelwood Valley may be organized and integrated by agents, but must not be used as input or imitation reference for generative artwork.
 - Keep dependencies few and explain substantial additions in the PR.
 - Update documentation when behavior, commands, architecture, or deployment changes.
 

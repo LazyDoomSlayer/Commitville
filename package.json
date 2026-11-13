@@ -6,8 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "dev:private": "npm run assets:prepare && vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
+    "build:private": "npm run assets:prepare && tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "assets:prepare": "node scripts/prepare-private-assets.mjs",
+    "assets:clear": "node scripts/prepare-private-assets.mjs --clear",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
     "test": "vitest run",
