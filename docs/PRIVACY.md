@@ -23,6 +23,8 @@ public/assets/private/
 
 They provide an explicit place for local experiments, but ignored files are not a security boundary. Before publishing or opening a PR, inspect the diff and the built `dist/` output for private information.
 
+`private/assets/` contains purchased source packs. `public/assets/private/` is a generated runtime cache created by `npm run assets:prepare`. Neither location may be committed.
+
 ## Public fixtures
 
 Public examples use fictional names, roles, dialogue, organizations, and schedules. Do not pseudonymize real confidential events and treat them as fictional if the underlying details remain recognizable.

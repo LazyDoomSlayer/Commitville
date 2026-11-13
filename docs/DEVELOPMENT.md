@@ -22,6 +22,22 @@ npm run dev
 
 Vite listens on all interfaces. This is intentional: it allows testing the development build from a Raspberry Pi or another device on the same trusted network. Do not expose the development server directly to the public internet.
 
+## Run with licensed local art
+
+The private asset workflow copies a curated runtime subset from the ignored licensed source directory into an ignored Vite public-asset cache:
+
+```bash
+npm run dev:private
+```
+
+Create a private production build with:
+
+```bash
+npm run build:private
+```
+
+Remove the generated cache with `npm run assets:clear`. The standard public build works without any licensed pack. See `ASSETS.md` for paths and restrictions.
+
 ## Quality checks
 
 The complete local gate is:
@@ -37,6 +53,8 @@ It runs linting, type-checking, unit tests, formatting verification, and the pro
 Merges to `main` build and deploy the generic public version through GitHub Actions. The workflow supplies `/Commitville/` as Vite's base path. Local and alternative deployments default to `/`.
 
 Private configuration is never bundled into the GitHub Pages deployment.
+
+The public workflow also runs from a clean checkout, so licensed private assets cannot enter the Pages artifact. A private Raspberry Pi build is produced locally with `npm run build:private`.
 
 ## Raspberry Pi direction
 

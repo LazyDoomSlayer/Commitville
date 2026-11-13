@@ -1,5 +1,12 @@
 import Phaser from 'phaser';
 
+import {
+  PRIVATE_ASSETS_REGISTRY_KEY,
+  type PixelwoodAssetPaths,
+  type PixelwoodPackManifest,
+  type PrivateAssetsManifest,
+} from '../../services/assets/private-assets.service';
+
 const COLORS = {
   wall: 0x22313d,
   floor: 0x2d4450,
@@ -10,20 +17,198 @@ const COLORS = {
   monitorGlow: 0x77e6b6,
   plant: 0x55a66f,
   coffee: 0xf0bf6a,
+  pixelwoodWall: 0x332b2f,
+  pixelwoodFloor: 0x8d552f,
+  pixelwoodFloorLight: 0xa9643a,
+  pixelwoodScreen: 0x8fd3c1,
 } as const;
 
+const PIXELWOOD_TEXTURES: Record<keyof PixelwoodAssetPaths, string> = {
+  interiorTiles: 'pixelwood-interior-tiles',
+  deskFront: 'pixelwood-desk-front',
+  deskBack: 'pixelwood-desk-back',
+  chairFront: 'pixelwood-chair-front',
+  chairBack: 'pixelwood-chair-back',
+  bookshelf: 'pixelwood-bookshelf',
+  bookshelfBack: 'pixelwood-bookshelf-back',
+  window: 'pixelwood-window',
+  meetingTable: 'pixelwood-meeting-table',
+  plantOne: 'pixelwood-plant-1',
+  plantThree: 'pixelwood-plant-3',
+  npcOne: 'pixelwood-npc-1',
+  npcTwo: 'pixelwood-npc-2',
+  npcThree: 'pixelwood-npc-3',
+  npcFour: 'pixelwood-npc-4',
+};
+
+const NPC_ASSET_NAMES: ReadonlyArray<keyof PixelwoodAssetPaths> = [
+  'npcOne',
+  'npcTwo',
+  'npcThree',
+  'npcFour',
+];
+
 export class OfficeScene extends Phaser.Scene {
+  private pixelwoodPack: PixelwoodPackManifest | null = null;
+
   constructor() {
     super('office');
   }
 
+  preload(): void {
+    const manifest = this.registry.get(PRIVATE_ASSETS_REGISTRY_KEY) as PrivateAssetsManifest | null;
+
+    this.pixelwoodPack = manifest?.packs.pixelwoodValley ?? null;
+
+    if (!this.pixelwoodPack) {
+      return;
+    }
+
+    const privateAssetBaseUrl = `${import.meta.env.BASE_URL}assets/private/`;
+
+    for (const [name, relativePath] of Object.entries(this.pixelwoodPack.assets) as Array<
+      [keyof PixelwoodAssetPaths, string]
+    >) {
+      const textureKey = PIXELWOOD_TEXTURES[name];
+
+      if (this.textures.exists(textureKey)) {
+        continue;
+      }
+
+      const assetUrl = `${privateAssetBaseUrl}${relativePath}`;
+
+      if (NPC_ASSET_NAMES.includes(name)) {
+        this.load.spritesheet(textureKey, assetUrl, {
+          frameWidth: this.pixelwoodPack.npcFrame.width,
+          frameHeight: this.pixelwoodPack.npcFrame.height,
+        });
+      } else {
+        this.load.image(textureKey, assetUrl);
+      }
+    }
+  }
+
   create(): void {
     this.cameras.main.setBackgroundColor(COLORS.wall);
-    this.drawFoundationOffice();
+
+    if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.deskFront)) {
+      this.drawPixelwoodOffice();
+    } else {
+      this.drawFoundationOffice();
+    }
 
     this.scale.on('resize', () => {
       this.scene.restart();
     });
+  }
+
+  private drawPixelwoodOffice(): void {
+    const { width, height } = this.scale;
+    const graphics = this.add.graphics();
+    const roomX = Math.max(20, width * 0.06);
+    const roomY = Math.max(96, height * 0.17);
+    const roomWidth = width - roomX * 2;
+    const roomHeight = height - roomY - Math.max(28, height * 0.06);
+    const assetScale = roomWidth >= 760 ? 3 : 2;
+    const centerX = width / 2;
+
+    graphics.fillStyle(COLORS.pixelwoodWall, 1);
+    graphics.fillRect(roomX - 10, roomY - 18, roomWidth + 20, roomHeight + 28);
+    graphics.fillStyle(COLORS.pixelwoodFloor, 1);
+    graphics.fillRect(roomX, roomY, roomWidth, roomHeight);
+
+    const floorTileSize = 16 * assetScale;
+    graphics.lineStyle(1, COLORS.pixelwoodFloorLight, 0.32);
+    for (let x = roomX; x <= roomX + roomWidth; x += floorTileSize) {
+      graphics.lineBetween(x, roomY, x, roomY + roomHeight);
+    }
+    for (let y = roomY; y <= roomY + roomHeight; y += floorTileSize) {
+      graphics.lineBetween(roomX, y, roomX + roomWidth, y);
+    }
+
+    const windowY = roomY + 8;
+    for (let x = roomX + 52; x < roomX + roomWidth - 40; x += 96) {
+      this.add.image(x, windowY, PIXELWOOD_TEXTURES.window).setScale(assetScale).setOrigin(0.5, 0);
+    }
+
+    this.add
+      .image(roomX + 20, roomY + 16, PIXELWOOD_TEXTURES.bookshelfBack)
+      .setScale(assetScale)
+      .setOrigin(0, 0);
+    this.add
+      .image(roomX + roomWidth - 20, roomY + 16, PIXELWOOD_TEXTURES.bookshelfBack)
+      .setScale(assetScale)
+      .setOrigin(1, 0);
+
+    if (roomWidth >= 620) {
+      const deskY = roomY + roomHeight * 0.5;
+      this.drawPixelwoodWorkstation(centerX - 190, deskY, 'npcOne', assetScale);
+      this.drawPixelwoodWorkstation(centerX + 190, deskY, 'npcTwo', assetScale);
+
+      this.add
+        .image(centerX, roomY + roomHeight - 60, PIXELWOOD_TEXTURES.meetingTable)
+        .setScale(assetScale)
+        .setOrigin(0.5, 1);
+      this.add
+        .sprite(centerX - 74, roomY + roomHeight - 70, PIXELWOOD_TEXTURES.npcThree, 0)
+        .setScale(assetScale * 0.78)
+        .setOrigin(0.5, 0.72);
+      this.add
+        .sprite(centerX + 74, roomY + roomHeight - 70, PIXELWOOD_TEXTURES.npcFour, 0)
+        .setScale(assetScale * 0.78)
+        .setOrigin(0.5, 0.72);
+    } else {
+      this.drawPixelwoodWorkstation(centerX, roomY + roomHeight * 0.46, 'npcOne', assetScale);
+      this.add
+        .image(centerX, roomY + roomHeight - 36, PIXELWOOD_TEXTURES.meetingTable)
+        .setScale(assetScale)
+        .setOrigin(0.5, 1);
+    }
+
+    this.add
+      .image(roomX + 34, roomY + roomHeight - 18, PIXELWOOD_TEXTURES.plantOne)
+      .setScale(assetScale)
+      .setOrigin(0.5, 1);
+    this.add
+      .image(roomX + roomWidth - 34, roomY + roomHeight - 18, PIXELWOOD_TEXTURES.plantThree)
+      .setScale(assetScale)
+      .setOrigin(0.5, 1);
+
+    this.add
+      .text(centerX, roomY + 48, 'PRIVATE ART PREVIEW', {
+        color: '#f4d6a1',
+        fontFamily: 'monospace',
+        fontSize: roomWidth >= 620 ? '13px' : '9px',
+        letterSpacing: 2,
+      })
+      .setOrigin(0.5);
+  }
+
+  private drawPixelwoodWorkstation(
+    x: number,
+    y: number,
+    npcName: (typeof NPC_ASSET_NAMES)[number],
+    assetScale: number,
+  ): void {
+    this.add.image(x, y, PIXELWOOD_TEXTURES.chairBack).setScale(assetScale).setOrigin(0.5, 1);
+    this.add
+      .sprite(x, y - assetScale * 8, PIXELWOOD_TEXTURES[npcName], 0)
+      .setScale(assetScale * 0.78)
+      .setOrigin(0.5, 0.72);
+    this.add
+      .image(x, y + assetScale * 8, PIXELWOOD_TEXTURES.deskFront)
+      .setScale(assetScale)
+      .setOrigin(0.5, 0);
+
+    const screen = this.add.rectangle(
+      x,
+      y + assetScale * 12,
+      assetScale * 10,
+      assetScale * 6,
+      COLORS.pixelwoodScreen,
+      1,
+    );
+    screen.setStrokeStyle(Math.max(1, assetScale - 1), 0x221c1d, 1);
   }
 
   private drawFoundationOffice(): void {

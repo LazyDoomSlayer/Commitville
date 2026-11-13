@@ -15,3 +15,4 @@ Use the next available four-digit number. Accepted ADRs are not rewritten to hid
 
 - [0001 — Browser-first static application](0001-browser-first-static-application.md)
 - [0002 — Phaser, TypeScript, and Vite](0002-phaser-typescript-vite.md)
+- [0003 — Private licensed asset pipeline](0003-private-licensed-asset-pipeline.md)

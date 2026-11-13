@@ -1,8 +1,15 @@
 import Phaser from 'phaser';
 
+import {
+  PRIVATE_ASSETS_REGISTRY_KEY,
+  type PrivateAssetsManifest,
+} from '../../services/assets/private-assets.service';
 import { OfficeScene } from '../scenes/office.scene';
 
-export const createGameConfig = (parent: string): Phaser.Types.Core.GameConfig => ({
+export const createGameConfig = (
+  parent: string,
+  privateAssets: PrivateAssetsManifest | null = null,
+): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent,
   backgroundColor: '#101820',
@@ -17,5 +24,10 @@ export const createGameConfig = (parent: string): Phaser.Types.Core.GameConfig =
   },
   render: {
     antialias: false,
+  },
+  callbacks: {
+    preBoot: (game) => {
+      game.registry.set(PRIVATE_ASSETS_REGISTRY_KEY, privateAssets);
+    },
   },
 });

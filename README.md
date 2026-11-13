@@ -29,11 +29,21 @@ npm run dev
 
 Open the URL printed by Vite. The development server listens on the local network so the app can also be tested from a Raspberry Pi or another device.
 
+Licensed local art packs are optional. After placing Pixelwood Valley in the ignored private asset directory, run:
+
+```bash
+npm run dev:private
+```
+
+See [Assets](docs/ASSETS.md) for the exact directory structure and licensing boundary.
+
 ## Commands
 
 ```bash
 npm run dev          # start the development server
+npm run dev:private  # prepare licensed local art and start the server
 npm run build        # type-check and create a production build
+npm run build:private # prepare licensed local art and build privately
 npm run test         # run unit tests once
 npm run lint         # run ESLint
 npm run format:check # verify formatting
@@ -45,6 +55,8 @@ npm run check        # run every CI check locally
 - [Vision](docs/VISION.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Development workflow](docs/DEVELOPMENT.md)
+- [Assets and licensing](docs/ASSETS.md)
+- [Privacy boundary](docs/PRIVACY.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Architecture decisions](docs/decisions/README.md)
 - [Contributing](CONTRIBUTING.md)
