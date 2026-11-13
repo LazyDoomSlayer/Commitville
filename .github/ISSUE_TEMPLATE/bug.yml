@@ -1,0 +1,42 @@
+name: Bug report
+description: Report reproducible incorrect behavior in Commitville.
+title: 'fix: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping make the simulation more reliable.
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What happened?
+      description: Describe the visible result and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include the smallest reliable sequence, scenario seed, or configuration that reproduces it.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, operating system, device, resolution, and Commitville version or commit.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add screenshots, recordings, or console output. Remove private information first.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed credentials, private company information, and real employee data.
+          required: true

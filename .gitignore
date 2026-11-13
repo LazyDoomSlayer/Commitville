@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.local
+*.log
+*.tsbuildinfo
+
+# Organization-specific content must remain outside the public repository.
+private/
+public/config/team.json
+public/assets/private/
