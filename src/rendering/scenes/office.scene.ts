@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 
 import {
   PRIVATE_ASSETS_REGISTRY_KEY,
+  type DonargAssetPaths,
+  type DonargOfficePackManifest,
   type PixelwoodAssetPaths,
   type PixelwoodPackManifest,
   type PrivateAssetsManifest,
@@ -41,6 +43,12 @@ const PIXELWOOD_TEXTURES: Record<keyof PixelwoodAssetPaths, string> = {
   npcFour: 'pixelwood-npc-4',
 };
 
+const DONARG_TEXTURES: Record<keyof DonargAssetPaths, string> = {
+  tileset: 'donarg-office-tileset',
+  tilesetNoShadow: 'donarg-office-tileset-no-shadow',
+  officeDesign: 'donarg-office-design',
+};
+
 const NPC_ASSET_NAMES: ReadonlyArray<keyof PixelwoodAssetPaths> = [
   'npcOne',
   'npcTwo',
@@ -50,6 +58,7 @@ const NPC_ASSET_NAMES: ReadonlyArray<keyof PixelwoodAssetPaths> = [
 
 export class OfficeScene extends Phaser.Scene {
   private pixelwoodPack: PixelwoodPackManifest | null = null;
+  private donargPack: DonargOfficePackManifest | null = null;
 
   constructor() {
     super('office');
@@ -59,31 +68,46 @@ export class OfficeScene extends Phaser.Scene {
     const manifest = this.registry.get(PRIVATE_ASSETS_REGISTRY_KEY) as PrivateAssetsManifest | null;
 
     this.pixelwoodPack = manifest?.packs.pixelwoodValley ?? null;
+    this.donargPack = manifest?.packs.donargOffice ?? null;
 
-    if (!this.pixelwoodPack) {
+    if (!this.pixelwoodPack && !this.donargPack) {
       return;
     }
 
     const privateAssetBaseUrl = `${import.meta.env.BASE_URL}assets/private/`;
 
-    for (const [name, relativePath] of Object.entries(this.pixelwoodPack.assets) as Array<
-      [keyof PixelwoodAssetPaths, string]
-    >) {
-      const textureKey = PIXELWOOD_TEXTURES[name];
+    if (this.pixelwoodPack) {
+      for (const [name, relativePath] of Object.entries(this.pixelwoodPack.assets) as Array<
+        [keyof PixelwoodAssetPaths, string]
+      >) {
+        const textureKey = PIXELWOOD_TEXTURES[name];
 
-      if (this.textures.exists(textureKey)) {
-        continue;
+        if (this.textures.exists(textureKey)) {
+          continue;
+        }
+
+        const assetUrl = `${privateAssetBaseUrl}${relativePath}`;
+
+        if (NPC_ASSET_NAMES.includes(name)) {
+          this.load.spritesheet(textureKey, assetUrl, {
+            frameWidth: this.pixelwoodPack.npcFrame.width,
+            frameHeight: this.pixelwoodPack.npcFrame.height,
+          });
+        } else {
+          this.load.image(textureKey, assetUrl);
+        }
       }
+    }
 
-      const assetUrl = `${privateAssetBaseUrl}${relativePath}`;
+    if (this.donargPack) {
+      for (const [name, relativePath] of Object.entries(this.donargPack.assets) as Array<
+        [keyof DonargAssetPaths, string]
+      >) {
+        const textureKey = DONARG_TEXTURES[name];
 
-      if (NPC_ASSET_NAMES.includes(name)) {
-        this.load.spritesheet(textureKey, assetUrl, {
-          frameWidth: this.pixelwoodPack.npcFrame.width,
-          frameHeight: this.pixelwoodPack.npcFrame.height,
-        });
-      } else {
-        this.load.image(textureKey, assetUrl);
+        if (!this.textures.exists(textureKey)) {
+          this.load.image(textureKey, `${privateAssetBaseUrl}${relativePath}`);
+        }
       }
     }
   }
@@ -91,7 +115,9 @@ export class OfficeScene extends Phaser.Scene {
   create(): void {
     this.cameras.main.setBackgroundColor(COLORS.wall);
 
-    if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.deskFront)) {
+    if (this.donargPack && this.textures.exists(DONARG_TEXTURES.officeDesign)) {
+      this.drawDonargOffice();
+    } else if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.deskFront)) {
       this.drawPixelwoodOffice();
     } else {
       this.drawFoundationOffice();
@@ -100,6 +126,59 @@ export class OfficeScene extends Phaser.Scene {
     this.scale.on('resize', () => {
       this.scene.restart();
     });
+  }
+
+  private drawDonargOffice(): void {
+    const { width, height } = this.scale;
+    const sourceWidth = 512;
+    const sourceHeight = 448;
+    const top = Math.max(82, height * 0.13);
+    const availableWidth = width - 32;
+    const availableHeight = height - top - 24;
+    const officeScale = Math.min(1.5, availableWidth / sourceWidth, availableHeight / sourceHeight);
+    const centerX = width / 2;
+    const left = centerX - (sourceWidth * officeScale) / 2;
+
+    this.add
+      .image(centerX, top, DONARG_TEXTURES.officeDesign)
+      .setScale(officeScale)
+      .setOrigin(0.5, 0);
+
+    if (this.pixelwoodPack && this.textures.exists(PIXELWOOD_TEXTURES.npcOne)) {
+      const placements: Array<{
+        x: number;
+        y: number;
+        texture: (typeof NPC_ASSET_NAMES)[number];
+      }> = [
+        { x: 112, y: 218, texture: 'npcOne' },
+        { x: 208, y: 218, texture: 'npcTwo' },
+        { x: 112, y: 322, texture: 'npcThree' },
+        { x: 208, y: 322, texture: 'npcFour' },
+      ];
+
+      for (const placement of placements) {
+        this.add
+          .sprite(
+            left + placement.x * officeScale,
+            top + placement.y * officeScale,
+            PIXELWOOD_TEXTURES[placement.texture],
+            0,
+          )
+          .setScale(officeScale)
+          .setOrigin(0.5, 0.72);
+      }
+    }
+
+    this.add
+      .text(centerX, top + 18, 'AUTONOMOUS OFFICE · PRIVATE PREVIEW', {
+        color: '#5e4f4c',
+        backgroundColor: '#f7f2df',
+        fontFamily: 'monospace',
+        fontSize: officeScale >= 0.8 ? '10px' : '7px',
+        letterSpacing: 1,
+        padding: { x: 5, y: 3 },
+      })
+      .setOrigin(0.5, 0);
   }
 
   private drawPixelwoodOffice(): void {

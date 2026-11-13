@@ -30,16 +30,33 @@ export interface PixelwoodPackManifest {
   };
 }
 
+export interface DonargAssetPaths {
+  tileset: string;
+  tilesetNoShadow: string;
+  officeDesign: string;
+}
+
+export interface DonargOfficePackManifest {
+  id: 'donarg-office';
+  title: string;
+  version: string;
+  creator: string;
+  source: string;
+  license: string;
+  assets: DonargAssetPaths;
+}
+
 export interface PrivateAssetsManifest {
   schemaVersion: 1;
   packs: {
-    pixelwoodValley: PixelwoodPackManifest;
+    pixelwoodValley?: PixelwoodPackManifest;
+    donargOffice?: DonargOfficePackManifest;
   };
 }
 
 export const PRIVATE_ASSETS_REGISTRY_KEY = 'private-assets-manifest';
 
-const assetNames: ReadonlyArray<keyof PixelwoodAssetPaths> = [
+const pixelwoodAssetNames: ReadonlyArray<keyof PixelwoodAssetPaths> = [
   'interiorTiles',
   'deskFront',
   'deskBack',
@@ -57,6 +74,12 @@ const assetNames: ReadonlyArray<keyof PixelwoodAssetPaths> = [
   'npcFour',
 ];
 
+const donargAssetNames: ReadonlyArray<keyof DonargAssetPaths> = [
+  'tileset',
+  'tilesetNoShadow',
+  'officeDesign',
+];
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
@@ -65,32 +88,57 @@ export const parsePrivateAssetsManifest = (value: unknown): PrivateAssetsManifes
     return null;
   }
 
-  const pack = value.packs.pixelwoodValley;
+  const pixelwoodPack = value.packs.pixelwoodValley;
+  const donargPack = value.packs.donargOffice;
 
-  if (!isRecord(pack)) {
+  if (pixelwoodPack === undefined && donargPack === undefined) {
     return null;
   }
 
-  const assets = pack.assets;
-  const npcFrame = pack.npcFrame;
+  if (pixelwoodPack !== undefined) {
+    if (!isRecord(pixelwoodPack)) {
+      return null;
+    }
 
-  if (
-    pack.id !== 'pixelwood-valley' ||
-    typeof pack.title !== 'string' ||
-    typeof pack.version !== 'string' ||
-    typeof pack.creator !== 'string' ||
-    typeof pack.source !== 'string' ||
-    typeof pack.license !== 'string' ||
-    !isRecord(assets) ||
-    !isRecord(npcFrame) ||
-    typeof npcFrame.width !== 'number' ||
-    typeof npcFrame.height !== 'number'
-  ) {
-    return null;
+    const assets = pixelwoodPack.assets;
+    const npcFrame = pixelwoodPack.npcFrame;
+
+    if (
+      pixelwoodPack.id !== 'pixelwood-valley' ||
+      typeof pixelwoodPack.title !== 'string' ||
+      typeof pixelwoodPack.version !== 'string' ||
+      typeof pixelwoodPack.creator !== 'string' ||
+      typeof pixelwoodPack.source !== 'string' ||
+      typeof pixelwoodPack.license !== 'string' ||
+      !isRecord(assets) ||
+      !isRecord(npcFrame) ||
+      typeof npcFrame.width !== 'number' ||
+      typeof npcFrame.height !== 'number' ||
+      pixelwoodAssetNames.some((name) => typeof assets[name] !== 'string')
+    ) {
+      return null;
+    }
   }
 
-  if (assetNames.some((name) => typeof assets[name] !== 'string')) {
-    return null;
+  if (donargPack !== undefined) {
+    if (!isRecord(donargPack)) {
+      return null;
+    }
+
+    const assets = donargPack.assets;
+
+    if (
+      donargPack.id !== 'donarg-office' ||
+      typeof donargPack.title !== 'string' ||
+      typeof donargPack.version !== 'string' ||
+      typeof donargPack.creator !== 'string' ||
+      typeof donargPack.source !== 'string' ||
+      typeof donargPack.license !== 'string' ||
+      !isRecord(assets) ||
+      donargAssetNames.some((name) => typeof assets[name] !== 'string')
+    ) {
+      return null;
+    }
   }
 
   return value as unknown as PrivateAssetsManifest;
