@@ -9,6 +9,19 @@ import {
 const validManifest: PrivateAssetsManifest = {
   schemaVersion: 1,
   packs: {
+    donargOffice: {
+      id: 'donarg-office',
+      title: 'Office Interior Tileset',
+      version: 'downloaded-2026-11-13',
+      creator: 'Donarg',
+      source: 'https://donarg.itch.io/office',
+      license: 'Bundled license; local runtime integration only',
+      assets: {
+        tileset: 'donarg-office/office-tileset-16x16.png',
+        tilesetNoShadow: 'donarg-office/office-tileset-16x16-no-shadow.png',
+        officeDesign: 'donarg-office/office-level-3.png',
+      },
+    },
     pixelwoodValley: {
       id: 'pixelwood-valley',
       title: 'Pixelwood Valley',
@@ -39,8 +52,17 @@ const validManifest: PrivateAssetsManifest = {
 };
 
 describe('private assets service', () => {
-  it('accepts a complete Pixelwood manifest', () => {
+  it('accepts complete private pack manifests', () => {
     expect(parsePrivateAssetsManifest(validManifest)).toEqual(validManifest);
+  });
+
+  it('accepts Donarg Office without Pixelwood', () => {
+    const manifest: PrivateAssetsManifest = {
+      schemaVersion: 1,
+      packs: { donargOffice: validManifest.packs.donargOffice! },
+    };
+
+    expect(parsePrivateAssetsManifest(manifest)).toEqual(manifest);
   });
 
   it('rejects incomplete manifests', () => {

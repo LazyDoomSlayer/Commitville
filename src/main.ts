@@ -15,8 +15,11 @@ if (!clockElement || !artCreditElement) {
 const privateAssets = await loadPrivateAssets();
 
 if (privateAssets) {
-  const pack = privateAssets.packs.pixelwoodValley;
-  artCreditElement.textContent = `ART: ${pack.title.toUpperCase()} · ${pack.creator.toUpperCase()}`;
+  const credits = [privateAssets.packs.donargOffice, privateAssets.packs.pixelwoodValley]
+    .filter((pack) => pack !== undefined)
+    .map((pack) => `${pack.title.toUpperCase()} · ${pack.creator.toUpperCase()}`);
+
+  artCreditElement.textContent = `ART: ${credits.join(' + ')}`;
   artCreditElement.hidden = false;
 }
 

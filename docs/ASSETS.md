@@ -14,6 +14,18 @@ The license permits use and modification in personal and commercial games. It do
 
 The creator has separately clarified that AI assistants may help with programming, documentation, asset organization, and technical integration, but the artwork must not be used to train or produce AI-generated artwork. Commitville follows that restriction.
 
+## Donarg Office Interior Tileset
+
+The private office composition uses the Office Interior Tileset by Donarg:
+
+- Source: <https://donarg.itch.io/office>
+- Archive SHA-256: `1b1f6ff8c52d2c4be953a4bb203fbcd8a53fb6cbb1ed64b768e400dfa452d091`
+- Purpose: modern office walls, floors, desks, computers, chairs, meeting areas, appliances, screens, and decorations
+
+The license bundled in the purchased archive permits editing and use in commercial and non-commercial projects. It prohibits resale or redistribution, web3/NFT/crypto/blockchain projects, and AI or machine-learning training. Credit to Donarg is optional and appreciated.
+
+The initial private preview uses the bundled Level 3 composition as a temporary office layout and overlays fictional Pixelwood NPCs. The 16×16 atlas is also prepared for the custom photo-based map that will replace the sample layout.
+
 ## Local source layout
 
 Extract the purchased pack into this ignored location:
@@ -24,9 +36,15 @@ private/assets/pixelwood-valley/
     ├── interior/
     ├── NPCs/
     └── ...
+
+private/assets/donarg-office/
+└── Office Tileset/
+    ├── Office Tileset All 16x16.png
+    ├── LICENSE.txt
+    └── Office Designs/
 ```
 
-An alternative extraction can be supplied temporarily with `PIXELWOOD_ASSET_ROOT`.
+Alternative extractions can be supplied temporarily with `PIXELWOOD_ASSET_ROOT` and `DONARG_ASSET_ROOT`.
 
 ## Runtime preparation
 
@@ -36,7 +54,7 @@ Run:
 npm run assets:prepare
 ```
 
-The preparation script validates the expected pack marker, clears only the generated `public/assets/private/` cache, copies the curated runtime subset, and writes a manifest. It never modifies the purchased source directory.
+The preparation script discovers either or both supported packs, validates their expected markers, clears only the generated `public/assets/private/` cache, copies each curated runtime subset, and writes a manifest. It never modifies a purchased source directory.
 
 The cache and the resulting private `dist/` build are local deployment artifacts. Do not add either to Git.
 
